@@ -1,0 +1,38 @@
+First push start code from UTA 
+
+git add package.json
+git commit -m "installed Express, Webpack, and related dependencies"
+git push
+
+git add server.js
+git commit -m "Setup Express server with basic routes and middleware"
+git push
+
+// SERVER
+git add webpack.config.js
+git commit -m "Configure Webpack for server-side bundling and hot reloading"
+git push
+
+git add  client/src/index.js client/src/App.js client/src/components
+git commit -m "React frontend with basic components and routing"
+git push
+
+git add client/webpack.config.js
+git commit -m "service worker for offline functionality"
+git push
+
+git add client/public/manifest.json
+git commit -m "Add PWA manifest file"
+git push
+
+git add client/src/index.js
+git commit -m "Register service worker for PWA functionality"
+git push
+
+git add client/src/utils/database.js
+git commit -m "Add IndexedDB integration for offline data persistence"
+git push
+
+git add README.md
+git commit -m "Update README with details"
+git push
