@@ -1,73 +1,75 @@
-// webpack.config.js
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const WebpackPwaManifest = require("webpack-pwa-manifest");
-const path = require("path");
-const { GenerateSW } = require("workbox-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WebpackPwaManifest = require('webpack-pwa-manifest');
+const path = require('path');
+const { InjectManifest } = require('workbox-webpack-plugin');
 
-module.exports = {
-  mode: "development",
-  entry: {
-    main: "./src/js/index.js",
-    install: "./src/js/install.js",
-  },
-  output: {
-    filename: "[name].bundle.js",
-    path: path.resolve(__dirname, "dist"),
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: "./src/index.html", // Ensure this path is correct
-      filename: "index.html",
-      chunks: ["main"],
-    }),
-    new WebpackPwaManifest({
-      fingerprints: false,
-      inject: true,
-      name: "UTA Text Editor",
-      short_name: "Text Editor",
-      description: "Save Note Here",
-      background_color: "#225ca3",
-      theme_color: "#225ca3",
-      start_url: "/",
-      publicPath: "/",
-      icons: [
+// TODO: Add and configure workbox plugins for a service worker and manifest file.
+// TODO: Add CSS loaders and babel to webpack.
+
+module.exports = () => {
+  return {
+    mode: 'production',
+    entry: {
+      main: path.resolve(__dirname, 'src/js/index.js'), 
+      install: path.resolve(__dirname, 'src/js/install.js'),
+    },
+    output: {
+      filename: '[name].bundle.js',
+      path: path.resolve(__dirname, 'dist'),
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: path.resolve(__dirname, 'index.html'),
+        title: 'Text Editor',
+      }),
+      new InjectManifest({
+        swSrc: path.resolve(__dirname, 'src-sw.js'),
+        swDest: 'service-worker.js',
+      }),
+      new WebpackPwaManifest({
+        name: 'Text Editor',
+        short_name: 'TextEditor',
+        description: 'A simple text editor',
+        background_color: '#ffffff',
+        theme_color: '#ffffff',
+        start_url: '.',
+        publicPath: '.',
+        icons: [
+          {
+            src: path.resolve(__dirname, 'src/images/logo.png'), 
+            sizes: [96, 128, 192, 256, 384, 512],
+            destination: path.join('assets', 'icons'),
+          },
+        ],
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: path.resolve(__dirname, 'favicon.ico'), to: path.resolve(__dirname, 'dist') }
+        ],
+      }),
+    ],
+    module: {
+      rules: [
         {
-          src: path.resolve("src/images/logo.png"),
-          sizes: [96, 128, 192, 256, 384, 512],
-          purpose: "any maskable",
-          destination: path.join("assets", "icons"),
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
         },
-      ],
-    }),
-    new GenerateSW({
-      clientsClaim: true,
-      skipWaiting: true,
-      swDest: "src-sw.js",
-    }),
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env"],
+        {
+          test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
+          type: 'asset/resource',
+        },
+        {
+          test: /\.m?js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env'],
+              plugins: ['@babel/plugin-transform-runtime'],
+            },
           },
         },
-      },
-    ],
-  },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, "dist"),
+      ],
     },
-    compress: true,
-    port: 3000,
-  },
+  };
 };
